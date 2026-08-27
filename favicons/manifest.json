@@ -1,0 +1,27 @@
+{
+  "name": "Ehsaas - Premium Shayari & Expressive Quotes",
+  "short_name": "Ehsaas",
+  "description": "Soulful Hindi, Urdu, and English Shayari and expressive quotes for every emotion.",
+  "start_url": "../",
+  "scope": "../",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#e11d48",
+  "background_color": "#f8fafc",
+  "lang": "en",
+  "categories": ["entertainment", "lifestyle", "books"],
+  "icons": [
+    {
+      "src": "android-chrome-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "android-chrome-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
