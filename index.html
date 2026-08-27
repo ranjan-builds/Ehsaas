@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Discover soulful Hindi, Urdu, and English Shayari, expressive quotes, love poetry, sad lines, and motivational thoughts on Ehsaas."
+    />
+    <meta
+      name="keywords"
+      content="Shayari, Hindi Shayari, Urdu poetry, love Shayari, sad quotes, motivational quotes, romantic poetry, expressive quotes"
+    />
+    <meta name="author" content="Ranjan" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="theme-color" content="#e11d48" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="application-name" content="Ehsaas" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ehsaas" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ehsaas" />
+    <meta
+      property="og:title"
+      content="Ehsaas - Premium Shayari & Expressive Quotes"
+    />
+    <meta
+      property="og:description"
+      content="Soulful Hindi, Urdu, and English Shayari and expressive quotes for every emotion."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Ehsaas - Premium Shayari & Expressive Quotes"
+    />
+    <meta
+      name="twitter:description"
+      content="Soulful Hindi, Urdu, and English Shayari and expressive quotes for every emotion."
+    />
+    <title>Ehsass - Premium Shayari & Expressive Quotes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#fff1f2",
+                100: "#ffe4e6",
+                500: "#f43f5e",
+                600: "#e11d48",
+                700: "#be123c",
+                900: "#881337",
+              },
+              darkbg: "#0f172a",
+              darkcard: "#1e293b",
+            },
+            fontFamily: {
+              serif: ["Georgia", "Cambria", "Times New Roman", "serif"],
+              sans: ["Inter", "system-ui", "sans-serif"],
+              hindi: ["Rozha One", "Rozha", "serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts for poetry aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Rozha+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+      .font-cinzel {
+        font-family: "Cinzel", serif;
+      }
+      .font-hindi {
+        font-family: "Rozha One", serif;
+      }
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .dark .glassmorphism {
+        background: rgba(30, 41, 59, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .text-gradient {
+        background: linear-gradient(
+          135deg,
+          #e11d48 0%,
+          #be123c 50%,
+          #881337 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .dark .text-gradient {
+        background: linear-gradient(
+          135deg,
+          #fb7185 0%,
+          #f43f5e 50%,
+          #e11d48 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-darkbg text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 flex flex-col justify-between"
+  >
+    <!-- ========================================== -->
+    <!-- GOOGLE APPS SCRIPT & API CONFIGURATION     -->
+    <!-- ========================================== -->
+    <script>
+      /**
+       * SETUP INSTRUCTIONS FOR GOOGLE SHEETS BACKEND:
+       * 1. Create a Google Sheet with columns: id, content, author, category, language, tags, likes, shares, featured, created_at, status
+       * 2. Go to Extensions -> Apps Script in Google Sheets.
+       * 3. Paste the provided Google Apps Script code (see setup doc/footer modal inside admin).
+       * 4. Deploy as Web App -> Execute as "Me", Access: "Anyone".
+       * 5. Replace the GOOGLE_APPS_SCRIPT_URL variable below with your Web App Deployment URL.
+       */
+      const CONFIG = {
+        // Replace with your deployed Google Apps Script URL
+        GOOGLE_APPS_SCRIPT_URL:
+          "https://script.google.com/macros/s/AKfycbxzT_lkEF0qcMjIzG8IJaOVqDSkCZOXC11AMb4--Gi0p-y5IiIZEsmvziFvi1x3v_u9lQ/exec",
+        ADMIN_PIN: "1234", // Default Admin PIN
+        DEFAULT_PAGE_SIZE: 6,
+        ENABLE_MOCK_FALLBACK: true, // Uses dynamic initial mock data if API URL is empty
+      };
+    </script>
+
+    <!-- HTML Template for Skeleton Loading -->
+    <template id="skeletonTemplate">
+      <div
+        class="bg-white dark:bg-slate-800/60 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 animate-pulse space-y-4"
+      >
+        <div class="flex justify-between items-center">
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-12"></div>
+        </div>
+        <div class="space-y-2 py-4">
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-4/6"></div>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
+          <div class="flex space-x-2">
+            <div
+              class="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full"
+            ></div>
+            <div
+              class="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Top Navigation Header -->
+    <header
+      class="sticky top-0 z-40 w-full glassmorphism border-b border-slate-200/80 dark:border-slate-800 transition-all"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20">
+          <!-- Logo -->
+          <a
+            href="#"
+            onclick="switchTab('home')"
+            class="flex items-center space-x-3 group"
+          >
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-rose-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform"
+            >
+              <i class="fa-solid font-cinzel text-xl">ए</i>
+            </div>
+            <div class="flex flex-col">
+              <span
+                class="font-cinzel text-2xl font-bold tracking-wider text-gradient"
+                >एहसास</span
+              >
+              <span
+                class="text-[10px] uppercase tracking-widest text-slate-500 dark:text-slate-400 font-medium -mt-1"
+                >Shayari & Expressive Quotes</span
+              >
+            </div>
+          </a>
+
+          <!-- Desktop Search Bar -->
+          <div class="hidden md:flex flex-1 max-w-md mx-8 relative">
+            <input
+              type="text"
+              id="searchInputDesktop"
+              onkeyup="handleSearch(event)"
+              placeholder="Search love, sad, Ghalib, Rahat, Hindi..."
+              class="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-full py-2.5 pl-11 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-slate-800 dark:text-slate-100"
+            />
+            <i
+              class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"
+            ></i>
+            <button
+              onclick="clearSearch()"
+              id="clearSearchBtnDesktop"
+              class="hidden absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Desktop Nav Buttons -->
+          <div class="hidden md:flex items-center space-x-3">
+            <button
+              onclick="switchTab('home')"
+              id="nav-home"
+              class="nav-btn px-4 py-2 rounded-full text-sm font-semibold text-brand-600 bg-brand-50 dark:bg-brand-900/30 dark:text-rose-400 transition-colors"
+            >
+              <i class="fa-solid fa-house mr-1.5"></i> Home
+            </button>
+            <button
+              onclick="switchTab('bookmarks')"
+              id="nav-bookmarks"
+              class="nav-btn px-4 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
+            >
+              <i class="fa-solid fa-bookmark mr-1.5"></i> Saved
+              <span
+                id="bookmarkBadge"
+                class="hidden absolute -top-1 -right-1 bg-brand-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold"
+                >0</span
+              >
+            </button>
+            <button
+              onclick="getRandomShayari()"
+              class="px-4 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <i class="fa-solid fa-shuffle text-brand-500 mr-1.5"></i> Random
+            </button>
+            <button
+              id="themeToggle"
+              onclick="toggleDarkMode()"
+              class="p-2.5 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Toggle Theme"
+            >
+              <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+              <i
+                class="fa-solid fa-sun hidden dark:block text-amber-400 text-lg"
+              ></i>
+            </button>
+            <button
+              onclick="openAdminModal()"
+              class="ml-2 px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-500 dark:text-slate-400 hover:border-brand-500 hover:text-brand-500 transition-colors"
+            >
+              <i class="fa-solid fa-lock mr-1"></i> Admin
+            </button>
+          </div>
+
+          <!-- Mobile Header Actions -->
+          <div class="flex items-center space-x-2 md:hidden">
+            <button
+              onclick="toggleDarkMode()"
+              class="p-2 text-slate-600 dark:text-slate-300"
+            >
+              <i class="fa-solid fa-moon dark:hidden"></i>
+              <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+            </button>
+            <button
+              onclick="toggleMobileMenu()"
+              class="p-2 text-slate-700 dark:text-slate-200 text-xl focus:outline-none"
+            >
+              <i class="fa-solid fa-bars" id="menuOpenIcon"></i>
+              <i class="fa-solid fa-xmark hidden" id="menuCloseIcon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Drawer Navigation -->
+      <div
+        id="mobileMenu"
+        class="hidden md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-4 pt-3 pb-6 space-y-3"
+      >
+        <div class="relative w-full mb-3">
+          <input
+            type="text"
+            id="searchInputMobile"
+            onkeyup="handleSearch(event)"
+            placeholder="Search poetry, tags, authors..."
+            class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <i
+            class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400"
+          ></i>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            onclick="
+              switchTab('home');
+              toggleMobileMenu();
+            "
+            class="flex items-center justify-center p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium text-sm"
+          >
+            <i class="fa-solid fa-house mr-2 text-brand-500"></i> Home
+          </button>
+          <button
+            onclick="
+              switchTab('bookmarks');
+              toggleMobileMenu();
+            "
+            class="flex items-center justify-center p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium text-sm"
+          >
+            <i class="fa-solid fa-bookmark mr-2 text-brand-500"></i> Saved
+          </button>
+          <button
+            onclick="
+              getRandomShayari();
+              toggleMobileMenu();
+            "
+            class="flex items-center justify-center p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium text-sm"
+          >
+            <i class="fa-solid fa-shuffle mr-2 text-brand-500"></i> Random
+          </button>
+          <button
+            onclick="
+              openAdminModal();
+              toggleMobileMenu();
+            "
+            class="flex items-center justify-center p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium text-sm"
+          >
+            <i class="fa-solid fa-lock mr-2 text-brand-500"></i> Admin Access
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-grow w-full"
+    >
+      <!-- Banner / Hero Section -->
+      <section
+        id="heroBanner"
+        class="relative rounded-3xl overflow-hidden mb-8 sm:mb-12 bg-gradient-to-r from-slate-900 via-rose-950 to-slate-900 text-white shadow-2xl p-6 sm:p-10 border border-slate-800"
+      >
+        <div
+          class="absolute -right-10 -bottom-10 opacity-10 text-slate-100 text-9xl pointer-events-none font-serif"
+        >
+          <i class="fa-solid fa-quote-right"></i>
+        </div>
+        <div class="max-w-3xl relative z-10">
+          <span
+            class="inline-block px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-semibold tracking-wider uppercase mb-3 border border-rose-500/30"
+          >
+            <i class="fa-solid fa-feather-pointed mr-1"></i> Featured Ghazal &
+            Quotes
+          </span>
+          <h1
+            class="text-3xl sm:text-5xl font-bold font-cinzel leading-tight tracking-wide mb-4 text-white"
+          >
+            Words that speak to your soul.
+          </h1>
+          <p
+            id="heroQuoteDisplay"
+            class="text-base sm:text-lg text-rose-100/90 font-serif italic line-clamp-3 mb-6 leading-relaxed"
+          >
+            "कुछ तबियत ही इन दिनों उदास है ग़ालिब, वर्ना दिल बहलाने के बहाने तो
+            बहुतायत में थे..."
+          </p>
+          <div class="flex flex-wrap gap-3 items-center">
+            <button
+              onclick="getRandomShayari()"
+              class="px-5 py-2.5 rounded-full bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm shadow-lg shadow-brand-600/40 transition-all flex items-center"
+            >
+              <i class="fa-solid fa-sparkles mr-2"></i> Explore Random
+              Expressive Lines
+            </button>
+            <button
+              onclick="filterByCategory('Love')"
+              class="px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium text-sm backdrop-blur-md transition-all"
+            >
+              # Love Shayari
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filters & Search Toolbar -->
+      <section class="mb-8 space-y-4">
+        <!-- Language & Quick Tags Pills -->
+        <div
+          class="flex flex-col md:flex-row md:items-center justify-between gap-4"
+        >
+          <!-- Categories Bar (Scrollable) -->
+          <div
+            class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar"
+            id="categoryTabs"
+          >
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Language Selector Pill -->
+          <div
+            class="flex items-center shrink-0 space-x-2 self-end md:self-auto"
+          >
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+              >Lang:</span
+            >
+            <select
+              id="languageFilter"
+              onchange="applyFilters()"
+              class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-700 dark:text-slate-200"
+            >
+              <option value="ALL">All Languages</option>
+              <option value="Hindi">Hindi (हिंदी)</option>
+              <option value="Urdu">Urdu (اردو)</option>
+              <option value="Hinglish">Hinglish</option>
+              <option value="English">English</option>
+            </select>
+
+            <select
+              id="sortFilter"
+              onchange="applyFilters()"
+              class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-700 dark:text-slate-200"
+            >
+              <option value="latest">Latest First</option>
+              <option value="popular">Most Liked</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Active Filters Indicator Bar -->
+        <div
+          id="activeFiltersBar"
+          class="hidden flex items-center gap-2 text-xs text-slate-500"
+        >
+          <span>Active Filters:</span>
+          <span id="activeFilterBadges" class="flex flex-wrap gap-1"></span>
+          <button
+            onclick="resetAllFilters()"
+            class="text-brand-600 font-semibold hover:underline ml-2"
+          >
+            Reset All
+          </button>
+        </div>
+      </section>
+
+      <!-- Section Heading -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2
+            id="sectionTitle"
+            class="text-2xl font-bold font-cinzel text-slate-900 dark:text-white"
+          >
+            Trending Poetry & Quotes
+          </h2>
+          <p
+            id="sectionSubtitle"
+            class="text-xs text-slate-500 dark:text-slate-400"
+          >
+            Handpicked lines to touch your emotions
+          </p>
+        </div>
+        <span
+          id="shayariCounter"
+          class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+        >
+          0 Items
+        </span>
+      </div>
+
+      <!-- Skeleton Loading State Container -->
+      <div
+        id="loadingSkeleton"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      ></div>
+
+      <!-- Empty State View -->
+      <div
+        id="emptyState"
+        class="hidden text-center py-16 bg-white dark:bg-slate-800/40 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 p-8"
+      >
+        <div
+          class="w-20 h-20 mx-auto mb-4 rounded-full bg-rose-50 dark:bg-slate-800 flex items-center justify-center text-brand-500 text-3xl"
+        >
+          <i class="fa-solid fa-heart-crack"></i>
+        </div>
+        <h3
+          class="text-xl font-bold font-cinzel text-slate-800 dark:text-slate-100"
+        >
+          No Lines Found
+        </h3>
+        <p
+          class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto"
+        >
+          We couldn't find any Shayari matching your current search criteria or
+          category filter.
+        </p>
+        <button
+          onclick="resetAllFilters()"
+          class="mt-5 px-5 py-2 bg-brand-600 text-white rounded-full text-sm font-medium hover:bg-brand-700 transition-colors shadow-lg"
+        >
+          Clear Filters & View All
+        </button>
+      </div>
+
+      <!-- Main Cards Grid -->
+      <div
+        id="shayariGrid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <!-- Dynamic Content Populated Here -->
+      </div>
+
+      <!-- Pagination Controls -->
+      <div
+        id="paginationContainer"
+        class="mt-12 flex justify-center items-center space-x-2 hidden"
+      >
+        <button
+          id="prevPageBtn"
+          onclick="changePage(-1)"
+          class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+        </button>
+        <span
+          id="pageIndicator"
+          class="text-xs font-semibold px-4 text-slate-500"
+          >Page 1 of 1</span
+        >
+        <button
+          id="nextPageBtn"
+          onclick="changePage(1)"
+          class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Next <i class="fa-solid fa-chevron-right ml-1"></i>
+        </button>
+      </div>
+    </main>
+
+    <!-- Detailed View / Single Shayari Modal -->
+    <div
+      id="detailModal"
+      class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative animate-in fade-in zoom-in duration-200"
+      >
+        <button
+          onclick="closeDetailModal()"
+          class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 text-xl"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div id="detailModalContent">
+          <!-- Dynamic Content -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Login / PIN Modal -->
+    <div
+      id="adminAuthModal"
+      class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-center"
+      >
+        <div
+          class="w-14 h-14 bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-rose-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl"
+        >
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3
+          class="text-xl font-bold font-cinzel text-slate-900 dark:text-white mb-1"
+        >
+          Admin Access
+        </h3>
+        <p class="text-xs text-slate-500 mb-6">
+          Enter admin passkey to manage backend database
+        </p>
+
+        <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+          <input
+            type="password"
+            id="adminPinInput"
+            maxlength="10"
+            placeholder="Enter PIN (Default: 1234)"
+            class="w-full text-center tracking-widest text-lg font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-900 dark:text-white"
+          />
+          <div class="flex gap-2">
+            <button
+              type="button"
+              onclick="closeAdminAuthModal()"
+              class="w-1/2 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="w-1/2 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 shadow-md"
+            >
+              Unlock Dashboard
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard Drawer/Modal -->
+    <div
+      id="adminPanelModal"
+      class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-md overflow-y-auto p-4 sm:p-6"
+    >
+      <div
+        class="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden my-8"
+      >
+        <!-- Header -->
+        <div
+          class="px-6 py-4 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center"
+        >
+          <div class="flex items-center space-x-3">
+            <span
+              class="px-2.5 py-1 bg-rose-500 text-white text-xs font-bold rounded-md uppercase tracking-wider"
+              >Admin</span
+            >
+            <h3 class="font-cinzel text-lg font-bold">
+              Shayari Content Management
+            </h3>
+          </div>
+          <button
+            onclick="closeAdminPanel()"
+            class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Admin Body Tabs -->
+        <div class="p-6">
+          <div
+            class="flex border-b border-slate-200 dark:border-slate-800 mb-6 gap-4 text-sm font-semibold"
+          >
+            <button
+              onclick="switchAdminTab('add')"
+              id="adminTab-add"
+              class="pb-3 border-b-2 border-brand-600 text-brand-600 dark:text-rose-400"
+            >
+              <i class="fa-solid fa-plus mr-1"></i> Add / Edit Shayari
+            </button>
+            <button
+              onclick="switchAdminTab('manage')"
+              id="adminTab-manage"
+              class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+            >
+              <i class="fa-solid fa-list-check mr-1"></i> All Records (<span
+                id="adminTotalCount"
+                >0</span
+              >)
+            </button>
+            <button
+              onclick="switchAdminTab('setup')"
+              id="adminTab-setup"
+              class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+            >
+              <i class="fa-solid fa-code mr-1"></i> Google Sheets API Guide
+            </button>
+          </div>
+
+          <!-- TAB 1: Add/Edit Form -->
+          <div id="adminSection-add" class="space-y-4">
+            <form onsubmit="handleShayariSubmit(event)" class="space-y-4">
+              <input type="hidden" id="adminFormId" />
+
+              <div>
+                <label
+                  class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1"
+                  >Shayari / Quote Text (Hindi/Urdu/English)</label
+                >
+                <textarea
+                  id="adminFormContent"
+                  rows="4"
+                  required
+                  placeholder="लिखिए अपनी शायरी या शेर यहाँ..."
+                  class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-serif leading-relaxed"
+                ></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1"
+                    >Author / Poet</label
+                  >
+                  <input
+                    type="text"
+                    id="adminFormAuthor"
+                    placeholder="e.g. Mirza Ghalib, Rahat Indori, Anonymous"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1"
+                    >Category</label
+                  >
+                  <select
+                    id="adminFormCategory"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    <option value="Love">Love (मोहब्बत)</option>
+                    <option value="Sad">Sad (दर्द)</option>
+                    <option value="Attitude">Attitude (तेवर)</option>
+                    <option value="Life">Life (ज़िंदगी)</option>
+                    <option value="Romantic">Romantic (रोमांटिक)</option>
+                    <option value="Friendship">Friendship (दोस्ती)</option>
+                    <option value="Motivational">
+                      Motivational (प्रेरणादायी)
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1"
+                    >Language</label
+                  >
+                  <select
+                    id="adminFormLanguage"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    <option value="Hindi">Hindi</option>
+                    <option value="Urdu">Urdu</option>
+                    <option value="Hinglish">Hinglish</option>
+                    <option value="English">English</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1"
+                    >Tags (Comma separated)</label
+                  >
+                  <input
+                    type="text"
+                    id="adminFormTags"
+                    placeholder="e.g. Ishq, Yaadein, Dil, Ghalib"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+                <div class="flex items-center space-x-6 pt-6">
+                  <label
+                    class="flex items-center space-x-2 text-xs font-semibold cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      id="adminFormFeatured"
+                      class="rounded text-brand-600 focus:ring-brand-500 w-4 h-4"
+                    />
+                    <span>Feature on Home Banner</span>
+                  </label>
+                </div>
+              </div>
+
+              <div
+                class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-800"
+              >
+                <button
+                  type="button"
+                  onclick="resetAdminForm()"
+                  class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  Clear Form
+                </button>
+                <button
+                  type="submit"
+                  id="saveShayariBtn"
+                  class="px-6 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-semibold hover:bg-brand-700 shadow-lg"
+                >
+                  Save Shayari
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- TAB 2: Manage List Table -->
+          <div id="adminSection-manage" class="hidden space-y-4">
+            <div
+              class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800"
+            >
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr
+                    class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                  >
+                    <th class="p-3">Shayari Preview</th>
+                    <th class="p-3">Category</th>
+                    <th class="p-3">Author</th>
+                    <th class="p-3">Lang</th>
+                    <th class="p-3 text-center">Likes</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="adminTableBody"
+                  class="divide-y divide-slate-200 dark:divide-slate-800"
+                >
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 3: Google Script Instructions -->
+          <div
+            id="adminSection-setup"
+            class="hidden space-y-4 text-xs leading-relaxed text-slate-600 dark:text-slate-300"
+          >
+            <div
+              class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300"
+            >
+              <i class="fa-solid fa-lightbulb mr-1"></i> Connect your Google
+              Sheet in 2 easy steps!
+            </div>
+            <ol class="list-decimal pl-5 space-y-2">
+              <li>
+                Create a new <strong>Google Sheet</strong> with header row:
+                <code
+                  >id, content, author, category, language, tags, likes, shares,
+                  featured, created_at, status</code
+                >
+              </li>
+              <li>
+                Go to <strong>Extensions &gt; Apps Script</strong> and paste the
+                backend code below:
+              </li>
+            </ol>
+            <pre
+              class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-[11px] overflow-x-auto"
+            >
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var result = [];
+  for (var i = 1; i < data.length; i++) {
+    var obj = {};
+    for (var j = 0; j < headers.length; j++) {
+      obj[headers[j]] = data[i][j];
+    }
+    if (obj.status !== 'archived') result.push(obj);
+  }
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var item = JSON.parse(e.postData.contents);
+  if (item.action === 'add') {
+    sheet.appendRow([item.id, item.content, item.author, item.category, item.language, item.tags, 0, 0, item.featured, new Date().toISOString(), 'active']);
+  }
+  return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+}
+                    </pre
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div
+      id="toastContainer"
+      class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"
+    ></div>
+
+    <!-- Footer -->
+    <footer
+      class="mt-16 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 dark:text-slate-400 space-y-4 sm:space-y-0"
+      >
+        <div class="flex items-center space-x-2">
+          <span
+            class="font-cinzel font-bold text-slate-700 dark:text-slate-200 text-sm"
+            >एहसास</span
+          >
+          <span>— Designed for poetic souls & poetry lovers</span>
+        </div>
+        <div
+          class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:justify-end"
+        >
+          <a
+            href="#"
+            onclick="filterByCategory('Love')"
+            class="hover:text-brand-500"
+            >Love Shayari</a
+          >
+          <a
+            href="#"
+            onclick="filterByCategory('Sad')"
+            class="hover:text-brand-500"
+            >Sad Quotes</a
+          >
+          <a
+            href="#"
+            onclick="filterByCategory('Attitude')"
+            class="hover:text-brand-500"
+            >Attitude</a
+          >
+          <a href="#" onclick="openAdminModal()" class="hover:text-brand-500"
+            ><i class="fa-solid fa-lock text-[10px] mr-1"></i> Admin</a
+          >
+          <span class="hidden sm:inline text-slate-300 dark:text-slate-700"
+            >|</span
+          >
+          <span>Developed by Ranjan</span>
+          <a
+            href="mailto:ranjan-builds@users.noreply.github.com"
+            aria-label="Email Ranjan"
+            title="Email Ranjan"
+            class="hover:text-brand-500 transition-colors"
+          >
+            <i class="fa-solid fa-envelope text-sm"></i>
+          </a>
+          <a
+            href="https://github.com/ranjan-builds"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ranjan on GitHub"
+            title="Ranjan on GitHub"
+            class="hover:text-brand-500 transition-colors"
+          >
+            <i class="fa-brands fa-github text-sm"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Vanilla Javascript Logic -->
+    <script src="script.js"></script>
+  </body>
+</html>
