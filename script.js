@@ -393,7 +393,7 @@ function createCardHTML(item) {
 
                             <div class="flex items-center space-x-1">
                                 <!-- Copy Button -->
-                                <button onclick="copyShayari('${escapeHtml(item.content)}', '${escapeHtml(item.author || "")}')" class="p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors" title="Copy Text">
+                                <button onclick="copyShayariById('${item.id}')" class="p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors" title="Copy Text">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                                 
@@ -456,21 +456,32 @@ function updateBookmarkBadge() {
   }
 }
 
-function copyShayari(content, author) {
+function copyShayariById(id) {
+  const item = state.shayariList.find((shayari) => shayari.id === id);
+  if (!item) return;
+  copyShayari(item.content, item.author || "");
+}
+
+async function copyShayari(content, author) {
   const formatted = `"${content}"\n\n— ${author || "Anonymous"}\nShared via Ehsaas App`;
 
   // Clipboard Copy Guard
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(formatted);
-  } else {
-    const textarea = document.createElement("textarea");
-    textarea.value = formatted;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(formatted);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = formatted;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+    showToast("Shayari copied to clipboard!", "success");
+  } catch (error) {
+    console.error("Unable to copy shayari.", error);
+    showToast("Could not copy shayari", "error");
   }
-  showToast("Shayari copied to clipboard!", "success");
 }
 
 function shareWhatsApp(content, author) {
@@ -697,7 +708,7 @@ function openDetailModal(id) {
                                 <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart text-rose-500"></i>
                                 <span>${item.likes || 0} Likes</span>
                             </button>
-                            <button onclick="copyShayari('${escapeHtml(item.content)}', '${escapeHtml(item.author || "")}')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold flex items-center space-x-2 hover:bg-slate-200 dark:hover:bg-slate-700">
+                            <button onclick="copyShayariById('${item.id}')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold flex items-center space-x-2 hover:bg-slate-200 dark:hover:bg-slate-700">
                                 <i class="fa-regular fa-copy"></i>
                                 <span>Copy Quote</span>
                             </button>
@@ -829,6 +840,9 @@ async function handleShayariSubmit(e) {
   const tags = formTags ? formTags.value : "";
   const featured = formFeat ? formFeat.checked : false;
 
+  const existingIndex = state.shayariList.findIndex((s) => s.id === id);
+  const existingItem =
+    existingIndex > -1 ? state.shayariList[existingIndex] : null;
   const newItem = {
     id,
     content,
@@ -836,14 +850,15 @@ async function handleShayariSubmit(e) {
     category,
     language,
     tags,
-    likes: 0,
-    shares: 0,
+    likes: existingItem ? existingItem.likes || 0 : 0,
+    shares: existingItem ? existingItem.shares || 0 : 0,
     featured,
-    created_at: new Date().toISOString(),
+    created_at: existingItem
+      ? existingItem.created_at
+      : new Date().toISOString(),
     status: "active",
   };
 
-  const existingIndex = state.shayariList.findIndex((s) => s.id === id);
   if (existingIndex > -1) {
     state.shayariList[existingIndex] = {
       ...state.shayariList[existingIndex],
@@ -860,7 +875,10 @@ async function handleShayariSubmit(e) {
     try {
       await fetch(CONFIG.GOOGLE_APPS_SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ action: "add", ...newItem }),
+        body: JSON.stringify({
+          action: existingIndex > -1 ? "update" : "add",
+          ...newItem,
+        }),
       });
     } catch (err) {
       console.error("Cloud sync failed", err);
@@ -896,14 +914,29 @@ function editShayari(id) {
   switchAdminTab("add");
 }
 
-function deleteShayari(id) {
-  if (confirm("Are you sure you want to delete this Shayari?")) {
-    state.shayariList = state.shayariList.filter((s) => s.id !== id);
-    saveLocalDb();
-    applyFilters();
-    renderAdminTable();
-    showToast("Record archived/removed", "info");
+async function deleteShayari(id) {
+  if (!confirm("Are you sure you want to delete this Shayari?")) return;
+
+  if (CONFIG.GOOGLE_APPS_SCRIPT_URL) {
+    try {
+      const response = await fetch(CONFIG.GOOGLE_APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "delete", id }),
+      });
+      if (!response.ok)
+        throw new Error(`Delete request failed: ${response.status}`);
+    } catch (error) {
+      console.error("Cloud delete failed", error);
+      showToast("Could not delete Shayari from Sheets", "error");
+      return;
+    }
   }
+
+  state.shayariList = state.shayariList.filter((s) => s.id !== id);
+  saveLocalDb();
+  applyFilters();
+  renderAdminTable();
+  showToast("Record archived/removed", "info");
 }
 
 function resetAdminForm() {
