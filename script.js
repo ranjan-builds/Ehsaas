@@ -438,9 +438,20 @@ function createCardHTML(item) {
         .join(" ")
     : "";
   const themeClasses = getCardTheme(item.category);
-  // Show "Read more" if content is longer than 150 chars OR has 4+ lines
-  const showReadMore =
-    item.content.length > 150 || item.content.split("\n").length >= 4;
+
+  // Calculate actual line count (count newlines + estimate wrapped lines)
+  const lines = item.content.split("\n");
+  const totalLines = lines.length;
+
+  // Rough estimate: each line ~50-60 chars on mobile, ~80-90 on desktop
+  // For safety, estimate wrapped lines
+  const estimatedVisibleLines = lines.reduce((acc, line) => {
+    const wrappedLines = Math.ceil(line.length / 50); // Conservative estimate
+    return acc + (wrappedLines || 1);
+  }, 0);
+
+  // Show "Read more" if content exceeds 7 visual lines
+  const showReadMore = estimatedVisibleLines > 7 || totalLines > 7;
 
   return `
                 <div class="${themeClasses} min-h-[390px] rounded-3xl p-6 sm:p-7 border shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col justify-between hover:border-rose-400 dark:hover:border-rose-500/50 transition-all duration-300 group">
@@ -457,7 +468,7 @@ function createCardHTML(item) {
 
                         <!-- Main Shayari Text -->
                         <div onclick="openDetailModal('${item.id}')" class="cursor-pointer">
-                            <p class="text-base sm:text-lg font-serif leading-relaxed text-slate-900 dark:text-slate-100 whitespace-pre-line line-clamp-5 mb-2 group-hover:text-brand-600 dark:group-hover:text-rose-300 transition-colors">
+                            <p class="text-base sm:text-lg font-serif leading-relaxed text-slate-900 dark:text-slate-100 whitespace-pre-line line-clamp-7 mb-2 group-hover:text-brand-600 dark:group-hover:text-rose-300 transition-colors">
                                 "${escapeHtml(item.content)}"
                             </p>
                             ${showReadMore ? '<span class="inline-flex items-center text-xs font-bold text-brand-600 dark:text-rose-300">Read full quote <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i></span>' : ""}
