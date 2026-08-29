@@ -438,8 +438,9 @@ function createCardHTML(item) {
         .join(" ")
     : "";
   const themeClasses = getCardTheme(item.category);
+  // Show "Read more" if content is longer than 150 chars OR has 4+ lines
   const showReadMore =
-    item.content.length > 180 || item.content.split("\n").length > 3;
+    item.content.length > 150 || item.content.split("\n").length >= 4;
 
   return `
                 <div class="${themeClasses} min-h-[390px] rounded-3xl p-6 sm:p-7 border shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col justify-between hover:border-rose-400 dark:hover:border-rose-500/50 transition-all duration-300 group">
