@@ -545,7 +545,7 @@ function createCardHTML(item) {
         </div>
 
         <!-- Main Shayari Text -->
-        <div onclick="openDetailModal('${item.id}')" class="cursor-pointer">
+        <div  onclick="openDetailModal('${item.id}')" class="cursor-pointer ">
           <p class="text-base sm:text-lg font-serif leading-relaxed text-slate-900 dark:text-slate-100 whitespace-pre-line ${
             showReadMore ? 'line-clamp-5' : ''
           } mb-2 group-hover:text-brand-600 dark:group-hover:text-rose-300 transition-colors">
