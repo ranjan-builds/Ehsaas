@@ -385,24 +385,59 @@ function renderGrid() {
 // Get dynamic colorful background classes for light mode, dark card background for dark mode
 function getCardTheme(category) {
   const cat = (category || "").toLowerCase();
-  switch (cat) {
-    case "love":
-      return "bg-gradient-to-br from-rose-100/90 via-pink-50 to-red-100/70 border-rose-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    case "sad":
-      return "bg-gradient-to-br from-blue-100/90 via-indigo-50 to-slate-100 border-blue-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    case "attitude":
-      return "bg-gradient-to-br from-amber-100/90 via-orange-50 to-yellow-100/70 border-amber-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    case "life":
-      return "bg-gradient-to-br from-emerald-100/90 via-teal-50 to-green-100/70 border-emerald-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    case "romantic":
-      return "bg-gradient-to-br from-fuchsia-100/90 via-rose-50 to-purple-100/70 border-fuchsia-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    case "friendship":
-      return "bg-gradient-to-br from-cyan-100/90 via-sky-50 to-blue-100/70 border-cyan-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    case "motivational":
-      return "bg-gradient-to-br from-violet-100/90 via-purple-50 to-indigo-100/70 border-violet-200/80 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-    default:
-      return "bg-gradient-to-br from-rose-100/70 via-slate-50 to-pink-100/60 border-rose-200/70 dark:from-slate-800/90 dark:via-slate-800/95 dark:to-slate-900 dark:border-slate-700/60";
-  }
+
+  const themes = {
+    love: `
+      bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.18),transparent_45%),linear-gradient(135deg,#1e0b13,#3b1727,#080b12)]
+      border-rose-900/60
+      shadow-[0_10px_40px_rgba(244,63,94,0.10)]
+    `,
+
+    sad: `
+      bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.16),transparent_45%),linear-gradient(135deg,#071426,#17233b,#080b12)]
+      border-blue-900/60
+      shadow-[0_10px_40px_rgba(59,130,246,0.08)]
+    `,
+
+    attitude: `
+      bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.18),transparent_45%),linear-gradient(135deg,#1c1205,#3b2814,#080b12)]
+      border-amber-900/60
+      shadow-[0_10px_40px_rgba(245,158,11,0.10)]
+    `,
+
+    life: `
+      bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.16),transparent_45%),linear-gradient(135deg,#061b17,#12352f,#080b12)]
+      border-emerald-900/60
+      shadow-[0_10px_40px_rgba(16,185,129,0.08)]
+    `,
+
+    romantic: `
+      bg-[radial-gradient(circle_at_top_right,rgba(217,70,239,0.18),transparent_45%),linear-gradient(135deg,#1b071c,#351735,#080b12)]
+      border-fuchsia-900/60
+      shadow-[0_10px_40px_rgba(217,70,239,0.10)]
+    `,
+
+    friendship: `
+      bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.16),transparent_45%),linear-gradient(135deg,#061a20,#12333b,#080b12)]
+      border-cyan-900/60
+      shadow-[0_10px_40px_rgba(6,182,212,0.08)]
+    `,
+
+    motivational: `
+      bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_45%),linear-gradient(135deg,#12091f,#261942,#080b12)]
+      border-violet-900/60
+      shadow-[0_10px_40px_rgba(139,92,246,0.10)]
+    `,
+  };
+
+  return (
+    themes[cat] ||
+    `
+    bg-[radial-gradient(circle_at_top_right,rgba(244,63,94,0.12),transparent_45%),linear-gradient(135deg,#111118,#211b2b,#080b12)]
+    border-slate-700/60
+    shadow-[0_10px_40px_rgba(148,163,184,0.06)]
+  `
+  );
 }
 
 function getCategoryBadgeClasses(category) {
@@ -439,89 +474,150 @@ function createCardHTML(item) {
     : "";
   const themeClasses = getCardTheme(item.category);
 
-  // Calculate actual line count (count newlines + estimate wrapped lines)
-  const lines = item.content.split("\n");
-  const totalLines = lines.length;
+  // ========== FIXED READ MORE LOGIC ==========
+  const content = item.content || "";
+  const lines = content.split("\n");
+  
+  // CRITICAL: Check if content actually exceeds the clamp limit
+  // We need to check both: 
+  // 1. More than 7 actual lines
+  // 2. Any line longer than the character limit per line on the smallest screen
+  
+  // Mobile-first check (35 chars per line on small screens)
+  const MAX_VISIBLE_LINES = 7;
+  const CHARS_PER_LINE_MOBILE = 35;
+  
+  let totalVisualLines = 0;
+  let exceedsClamp = false;
+  
+  for (let line of lines) {
+    if (line.length === 0) {
+      totalVisualLines += 1; // Empty line counts as 1
+    } else {
+      // Calculate how many visual lines this text line will take
+      const visualLinesForThisLine = Math.ceil(line.length / CHARS_PER_LINE_MOBILE);
+      totalVisualLines += visualLinesForThisLine;
+    }
+    
+    // Stop counting if we already exceed 7 lines
+    if (totalVisualLines > MAX_VISIBLE_LINES) {
+      exceedsClamp = true;
+      break;
+    }
+  }
+  
+  // Additional check: if total lines > 7
+  if (lines.length > MAX_VISIBLE_LINES) {
+    exceedsClamp = true;
+  }
+  
+  // Check if content is long enough to wrap
+  const charCount = content.replace(/\n/g, "").length;
+  if (charCount > 250) { // 250 characters is roughly 7 lines on mobile
+    exceedsClamp = true;
+  }
+  
+  // Show "Read more" ONLY if content exceeds clamp limit
+  const showReadMore = exceedsClamp;
 
-  // Rough estimate: each line ~50-60 chars on mobile, ~80-90 on desktop
-  // For safety, estimate wrapped lines
-  const estimatedVisibleLines = lines.reduce((acc, line) => {
-    const wrappedLines = Math.ceil(line.length / 50); // Conservative estimate
-    return acc + (wrappedLines || 1);
-  }, 0);
-
-  // Show "Read more" if content exceeds 7 visual lines
-  const showReadMore = estimatedVisibleLines > 7 || totalLines > 7;
+  // Debug (remove in production)
+  if (showReadMore) {
+    console.debug('Content exceeds clamp:', {
+      id: item.id,
+      totalVisualLines,
+      actualLines: lines.length,
+      charCount,
+      contentPreview: content.substring(0, 50) + '...'
+    });
+  }
 
   return `
-                <div class="${themeClasses} min-h-[390px] rounded-3xl p-6 sm:p-7 border shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col justify-between hover:border-rose-400 dark:hover:border-rose-500/50 transition-all duration-300 group">
-                    <div>
-                        <!-- Top Meta -->
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase border shadow-sm ${getCategoryBadgeClasses(item.category)}">
-                                ${item.category || "General"}
-                            </span>
-                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                ${item.language || ""}
-                            </span>
-                        </div>
+    <div class="${themeClasses} min-h-[390px] rounded-3xl p-6 sm:p-7 border shadow-xl shadow-slate-200/50 dark:shadow-none flex flex-col justify-between hover:border-rose-400 dark:hover:border-rose-500/50 transition-all duration-300 group">
+      <div>
+        <!-- Top Meta -->
+        <div class="flex items-center justify-between mb-4">
+          <span class="px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase border shadow-sm ${getCategoryBadgeClasses(item.category)}">
+            ${item.category || "General"}
+          </span>
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            ${item.language || ""}
+          </span>
+        </div>
 
-                        <!-- Main Shayari Text -->
-                        <div onclick="openDetailModal('${item.id}')" class="cursor-pointer">
-                            <p class="text-base sm:text-lg font-serif leading-relaxed text-slate-900 dark:text-slate-100 whitespace-pre-line line-clamp-7 mb-2 group-hover:text-brand-600 dark:group-hover:text-rose-300 transition-colors">
-                                "${escapeHtml(item.content)}"
-                            </p>
-                            ${showReadMore ? '<span class="inline-flex items-center text-xs font-bold text-brand-600 dark:text-rose-300">Read full quote <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i></span>' : ""}
-                        </div>
-                    </div>
+        <!-- Main Shayari Text -->
+        <div onclick="openDetailModal('${item.id}')" class="cursor-pointer">
+          <p class="text-base sm:text-lg font-serif leading-relaxed text-slate-900 dark:text-slate-100 whitespace-pre-line ${
+            showReadMore ? 'line-clamp-5' : ''
+          } mb-2 group-hover:text-brand-600 dark:group-hover:text-rose-300 transition-colors">
+            "${escapeHtml(content)}"
+          </p>
+          ${
+            showReadMore 
+              ? `<span class="inline-flex items-center text-xs font-bold text-brand-600 dark:text-rose-300 hover:text-brand-700 dark:hover:text-rose-200 transition-colors">
+                   Read full quote <i class="fa-solid fa-arrow-right ml-1.5 text-[10px]"></i>
+                 </span>` 
+              : ""
+          }
+        </div>
+      </div>
 
-                    <div>
-                        <!-- Poet Name & Tags -->
-                        <div class="pt-3 border-t border-slate-300/40 dark:border-slate-700/50 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-4">
-                            <span class="font-semibold text-slate-800 dark:text-slate-300 flex items-center">
-                                <i class="fa-solid fa-pen-nib text-brand-500 mr-1.5 text-[10px]"></i>
-                                ${item.author || "Anonymous"}
-                            </span>
-                            <span class="truncate max-w-[120px] italic text-[11px] text-slate-500 dark:text-slate-400">${formattedTags}</span>
-                        </div>
+      <div>
+        <!-- Poet Name & Tags -->
+        <div class="pt-3 border-t border-slate-300/40 dark:border-slate-700/50 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-4">
+          <span class="font-semibold text-slate-800 dark:text-slate-300 flex items-center">
+            <i class="fa-solid fa-pen-nib text-brand-500 mr-1.5 text-[10px]"></i>
+            ${item.author || "Anonymous"}
+          </span>
+          <span class="truncate max-w-[120px] italic text-[11px] text-slate-500 dark:text-slate-400">${formattedTags}</span>
+        </div>
 
-                        <!-- Card Action Toolbar -->
-                        <div class="flex items-center justify-between bg-white/70 dark:bg-slate-900/60 backdrop-blur-sm p-2 rounded-2xl border border-white/60 dark:border-slate-700/40">
-                            <div class="flex items-center space-x-1">
-                                <!-- Like Button -->
-                                <button onclick="toggleLike('${item.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/30 text-xs font-semibold transition-colors ${isLiked ? "text-rose-600 dark:text-rose-400" : "text-slate-600 dark:text-slate-400"}">
-                                    <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart text-sm text-rose-500"></i>
-                                    <span>${item.likes || 0}</span>
-                                </button>
-                                
-                                <!-- Bookmark Button -->
-                                <button onclick="toggleBookmark('${item.id}')" class="p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors" title="Save Quote">
-                                    <i class="${isBookmarked ? "fa-solid text-brand-600" : "fa-regular"} fa-bookmark"></i>
-                                </button>
-                            </div>
+        <!-- Card Action Toolbar -->
+        <div class="flex items-center justify-between dark:bg-slate-900/20 backdrop-blur-sm p-2 rounded-2xl border border-white/20 dark:border-slate-700/40">
+          <div class="flex items-center space-x-1">
+            <!-- Like Button -->
+            <button onclick="toggleLike('${item.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/30 text-xs font-semibold transition-colors ${isLiked ? "text-rose-600 dark:text-rose-400" : "text-slate-600 dark:text-slate-400"}">
+              <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart text-sm text-rose-500"></i>
+              <span>${item.likes || 0}</span>
+            </button>
+            
+            <!-- Bookmark Button -->
+            <button onclick="toggleBookmark('${item.id}')" class="p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors" title="Save Quote">
+              <i class="${isBookmarked ? "fa-solid text-brand-600" : "fa-regular"} fa-bookmark"></i>
+            </button>
+          </div>
 
-                            <div class="flex items-center space-x-1">
-                                <!-- Copy Button -->
-                                
-                                <!-- Share WhatsApp -->
-                                <button onclick="shareWhatsApp('${encodeURIComponent(item.content)}', '${encodeURIComponent(item.author || "")}')" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center space-x-1 transition-colors">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i>
-                                    <span>Share</span>
-                                </button>
-                                <details class="relative sm:hidden">
-                                    <summary class="list-none p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer" aria-label="More quote actions"><i class="fa-solid fa-ellipsis"></i></summary>
-                                    <div class="absolute right-0 bottom-10 z-10 w-36 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-1.5">
-                                        <button onclick="copyShayariById('${item.id}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700"><i class="fa-regular fa-copy mr-2"></i>Copy text</button>
-                                        <button onclick="openImageShareModal('${item.id}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700"><i class="fa-solid fa-image mr-2"></i>Share image</button>
-                                    </div>
-                                </details>
-                                <button onclick="copyShayariById('${item.id}')" class="hidden sm:block p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors" title="Copy Text"><i class="fa-regular fa-copy"></i></button>
-                                <button onclick="openImageShareModal('${item.id}')" class="hidden sm:block p-2 rounded-xl hover:bg-brand-50 dark:hover:bg-rose-900/30 text-brand-600 dark:text-rose-300 transition-colors" title="Create share image" aria-label="Create share image"><i class="fa-solid fa-image"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+          <div class="flex items-center space-x-1">
+            <!-- Share WhatsApp -->
+            <button onclick="shareWhatsApp('${encodeURIComponent(content)}', '${encodeURIComponent(item.author || "")}')" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center space-x-1 transition-colors">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+              <span>Share</span>
+            </button>
+            
+            <details class="relative sm:hidden">
+              <summary class="list-none p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer" aria-label="More quote actions">
+                <i class="fa-solid fa-ellipsis"></i>
+              </summary>
+              <div class="absolute right-0 bottom-10 z-10 w-36 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-1.5">
+                <button onclick="copyShayariById('${item.id}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700">
+                  <i class="fa-regular fa-copy mr-2"></i>Copy text
+                </button>
+                <button onclick="openImageShareModal('${item.id}')" class="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700">
+                  <i class="fa-solid fa-image mr-2"></i>Share image
+                </button>
+              </div>
+            </details>
+            
+            <button onclick="copyShayariById('${item.id}')" class="hidden sm:block p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors" title="Copy Text">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+            <button onclick="openImageShareModal('${item.id}')" class="hidden sm:block p-2 rounded-xl hover:bg-brand-50 dark:hover:bg-rose-900/30 text-brand-600 dark:text-rose-300 transition-colors" title="Create share image" aria-label="Create share image">
+              <i class="fa-solid fa-image"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // Interactive Handlers
